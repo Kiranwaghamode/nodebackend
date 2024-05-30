@@ -1,6 +1,6 @@
 import { v2 as cloudinary} from "cloudinary"
 import fs from "fs"
-import { ApiError } from "./ApiError";
+import { ApiError } from "./ApiError.js";
 
 
 cloudinary.config({
@@ -64,7 +64,7 @@ const deleteOnCloudinary = async(imgUrl)=>{
 
 
 
-export {uploadOnCloudinary, deleteOnCloudinary}
+export { uploadOnCloudinary , deleteOnCloudinary }
 
 
 
