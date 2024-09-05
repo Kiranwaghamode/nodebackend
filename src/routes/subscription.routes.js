@@ -8,7 +8,7 @@ router.use(verifyJWT)
 
 
 router.route("/subscription-toggle/:channelId").patch(toggleSubscription)
-router.route("/subscribed-channels/:subscriberId").get(getSubscribedChannels)
+router.route("/subscribed-channels/").get(getSubscribedChannels)
 
 
 

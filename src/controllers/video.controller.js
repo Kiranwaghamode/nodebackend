@@ -20,6 +20,9 @@ const publishVideo = asyncHandler(async(req, res)=>{
 
     const videoLocalPath = req.files?.videoFile[0].path
 
+    // console.log(thumbnailLocalPath)
+    // console.log(videoLocalPath)
+
     
     
     if(!thumbnailLocalPath || !videoLocalPath){
@@ -80,15 +83,18 @@ const updateVideo = asyncHandler(async (req, res)=>{
 
     const oldThumbnail = videoDocument.thumbnail
 
-    if(!title && !thumbnail && !description){
-        throw new ApiError(400, "At least one field is required")
-    }
+   
 
     const updateFields = {};
     if (title) updateFields.title = title;
     if (description) updateFields.description = description;
 
     const thumbnailLocalPath = req.file?.path
+    // console.log(thumbnailLocalPath)
+
+    if(!updateFields){
+        throw new ApiError(400, "At least one field is required")
+    }
 
     if(thumbnailLocalPath){
         const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
@@ -137,7 +143,6 @@ const deleteVideo = asyncHandler(async (req, res)=>{
 const getAllVideos = asyncHandler(async (req, res)=>{
     const { page = 1, limit = 10, query, sortBy = 'createdAt', sortType = 'desc', userId } = req.query;
 
-    // Build the filter object
     const filter = {};
     if (query) {
       filter.$text = { $search: query };
@@ -146,26 +151,20 @@ const getAllVideos = asyncHandler(async (req, res)=>{
       filter.userId = userId;
     }
 
-    // Convert page and limit to numbers
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
 
-    // Calculate the number of documents to skip
     const skip = (pageNumber - 1) * limitNumber;
 
-    // Build the sort object
     const sort = {};
     sort[sortBy] = sortType === 'desc' ? -1 : 1;
 
-    // Fetch the videos from the database
     const videos = await Video.find()
       .sort(sort)
       .skip(skip)
       .limit(limitNumber);
 
-    //   console.log(videos);
 
-    // Get the total number of documents for pagination
     const totalVideos = await Video.countDocuments(filter);
 
     res
@@ -181,6 +180,32 @@ const getAllVideos = asyncHandler(async (req, res)=>{
     );
 })
 
+const getUserVideos = asyncHandler(async (req, res)=>{
+    const { username } = req.params
+
+    const user = await User.findOne({username: username})
+    const userId = user._id
+    const videos = await Video.find({owner: userId})
+
+    if(!videos){
+        throw new ApiError(500, "Error while finding user's videos!")
+
+    }
+
+    // console.log(videos)
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            videos,
+            "user videos fetched successfully"
+        )
+    )
+
+})
 
 
-export {publishVideo, getVideoById, updateVideo, deleteVideo, getAllVideos}
+
+export {publishVideo, getVideoById, updateVideo, deleteVideo, getAllVideos, getUserVideos}

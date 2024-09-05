@@ -1,9 +1,11 @@
 import { Router } from "express";
 import {  changeCurrentPassword,
           getCurrentUser,
+          getUserById,
+          getUserByUsername,
           getUserChannelProfile, 
           getWatchHistory, loginUser, 
-          logout, refreshAccessToken, 
+          logout, pushVideoToWatchHistory, refreshAccessToken, 
           registerUser, 
           updateAccountDetails, 
           updateUserAvatar, 
@@ -47,6 +49,9 @@ router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvat
 router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage) //done
 router.route("/c/:username").get(verifyJWT, getUserChannelProfile) //done
 router.route("/history").get(verifyJWT, getWatchHistory) //done
+router.route("/get-user/:username").get(verifyJWT, getUserById)
+router.route("/get-user-by-id/:userId").get(verifyJWT, getUserByUsername)
+router.route("/push-to-watchHistory/:videoId").post(verifyJWT, pushVideoToWatchHistory )
 
 
 

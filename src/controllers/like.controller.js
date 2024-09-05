@@ -96,7 +96,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     res
     .status(200)
     .json(
-        new ApiResponse(200, {isLiked}, "tweet like toggled successfully")
+        new ApiResponse(200, {isLiked : isLiked}, "tweet like toggled successfully")
     )
 
 }
@@ -115,7 +115,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     res
     .status(200)
     .json(
-        new ApiResponse(200, 
+        new ApiResponse(
+            200, 
             videos,
             "Liked videos fetched successfully"
         )
@@ -124,9 +125,67 @@ const getLikedVideos = asyncHandler(async (req, res) => {
 
 })
 
+
+const  isVideoLiked = asyncHandler(async (req, res)=>{
+    const {videoId} = req.params
+    const userId = req.user?._id
+
+    const like = await Like.findOne({
+        video: videoId,
+        likedBy: userId
+    })
+
+    let isLiked;
+    if(like){
+        isLiked=true
+    }else{
+        isLiked=false;
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {isLiked: isLiked},
+            "isLiked found successfully"
+        )
+    )
+
+})
+
+const isTweetLiked = asyncHandler(async (req, res)=>{
+    const {tweetId} = req.params
+    const userId = req.user?._id
+
+    const like = await Like.findOne({
+        tweet: tweetId,
+        likedBy: userId
+    })
+
+    let isLiked;
+    if(like){
+        isLiked=true
+    }else{
+        isLiked=false;
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {isLiked: isLiked},
+            "fetched tweet isliked"
+        )
+    )
+})
+
 export {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    isVideoLiked,
+    isTweetLiked
 }

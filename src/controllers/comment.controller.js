@@ -43,7 +43,7 @@ const deleteComment = asyncHandler(async (req, res)=>{
     const comment = await Comment.findById(commentId)
     
 
-    if(comment.owner.toString() !== userId){
+    if(comment?.owner.toString() !== userId){
         throw new ApiError(400, "you cannot delete this comment")
     }
 

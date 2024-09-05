@@ -60,6 +60,9 @@ const registerUser = asyncHandler(async (req, res)=>{
 
     
 
+     
+    
+
     let coverImageLocalPath;
     if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
         coverImageLocalPath = req.files.coverImage[0].path
@@ -150,7 +153,8 @@ const loginUser = asyncHandler( async (req, res)=>{
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000
     }
 
     return res
@@ -526,6 +530,62 @@ const getWatchHistory = asyncHandler(async (req, res)=>{
 
 })
 
+const getUserById = asyncHandler(async(req, res)=>{
+    const { username } = req.params
+
+    const user = await User.findOne({username: username})
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200, {user: user}, "User fetched successfully"
+        )
+    )
+})
+
+const getUserByUsername = asyncHandler(async (req, res)=>{
+    const { userId } = req.params
+
+    if(!userId){
+        throw new ApiError(400, "User Id cannot be undefined")
+    }
+
+    const user = await User.findById(userId).select(
+        "-password -refreshToken"
+    )
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {user: user},
+            "User fetched succesfully"
+        )
+    )
+})
+
+
+const pushVideoToWatchHistory = asyncHandler(async(req, res)=>{
+    const { videoId } = req.params
+    const userId = req.user._id
+
+    const user = await User.findById(userId)
+
+    if (!user.watchHistory.includes(videoId)){
+        user.watchHistory.push(videoId); 
+        await user.save(); 
+      } 
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(200, "pushed to watch history")
+    )
+
+})
+
 
 export {
      registerUser,
@@ -538,6 +598,9 @@ export {
      updateUserAvatar,
      updateUserCoverImage,
      getUserChannelProfile,
-     getWatchHistory
+     getWatchHistory,
+     getUserById,
+     pushVideoToWatchHistory,
+     getUserByUsername
  }
  
